@@ -1,11 +1,13 @@
 package com.example.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.annotation.ErrorLog;
@@ -18,7 +20,7 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @RestController
-@RequestMapping("user")
+@RequestMapping(value = "/user")
 @RequiredArgsConstructor
 public class UserCommandController {
     @Autowired
@@ -26,17 +28,22 @@ public class UserCommandController {
 
     @ErrorLog
     @PostMapping("/create")
-    public Mono<Void> create(@RequestBody User user) {
-        return userCommandService.create(user);
+    @ResponseBody
+    public Mono<String> create(@Validated @RequestBody Mono<User> user) {
+        return user.flatMap(body -> userCommandService.create(body))
+                .map(result -> "success!")
+                .onErrorResume(e -> Mono.just("fail: " + e.getMessage()));
     }
 
     @ErrorLog
     @PutMapping("/update")
-    public Mono<Void> update(@RequestBody User user) {
+    @ResponseBody
+    public Mono<Void> update(@Validated @RequestBody User user) {
         return userCommandService.update(user);
     }
 
     @DeleteMapping("/delete")
+    @ResponseBody
     public Mono<Void> delete(Long id) {
         return userCommandService.delete(id);
     }
