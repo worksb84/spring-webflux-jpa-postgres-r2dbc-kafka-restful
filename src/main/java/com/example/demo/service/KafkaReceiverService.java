@@ -50,11 +50,11 @@ public class KafkaReceiverService implements CommandLineRunner {
                 .receiveAutoAck()
                 .doOnNext(r -> {
                     User user = (User) r.value();
-                    log.info("user: {} {}", user.getId(), user.getNickname());
+                    log.info("user: {} {} {}", user.getId(), user.getNickname(), user.getEmail());
                 })
                 .doOnError(e -> {
                     System.out.println("error: " + e);
-                }); 
+                });
     }
 
     @Override
