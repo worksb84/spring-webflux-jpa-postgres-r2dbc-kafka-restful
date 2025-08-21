@@ -9,13 +9,17 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
+import lombok.extern.log4j.Log4j2;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
 
+import reactor.kafka.receiver.KafkaReceiver;
 import reactor.kafka.receiver.ReceiverOptions;
 
+@Log4j2
 @Configuration
 public class KafkaConsumerConfig {
 
@@ -44,15 +48,23 @@ public class KafkaConsumerConfig {
         props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, autoCommitIntervalMS);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
         ReceiverOptions<String, Object> receiverOptions = ReceiverOptions.create(props);
-        receiverOptions.assignment(Collections.singleton(new TopicPartition("user-topic", 0)));
-        return receiverOptions;
+        // ReceiverOptions<String, Object> options receiverOptions.assignment(Collections.singleton(new TopicPartition("user-topic1", 0)));
+
+        ReceiverOptions<String, Object> options = receiverOptions.subscription(Collections.singleton("user-topic1"));
+        return options;
     }
 
     @Bean
     public ReactiveKafkaConsumerTemplate<String, Object> reactiveKafkaConsumerTemplate(
             ReceiverOptions<String, Object> receiverOptions) {
-        return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
+        return new ReactiveKafkaConsumerTemplate<String, Object>(receiverOptions);
+    }
+
+    @Bean
+    public KafkaReceiver<String, Object> kafkaReceiver(ReceiverOptions<String, Object> receiverOptions) {
+        return KafkaReceiver.create(receiverOptions);
+
     }
 }

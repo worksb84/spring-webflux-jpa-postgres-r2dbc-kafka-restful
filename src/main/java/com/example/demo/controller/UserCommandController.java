@@ -17,6 +17,7 @@ import com.example.demo.service.UserCommandService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+import reactor.kafka.sender.SenderResult;
 
 @Slf4j
 @RestController
@@ -29,16 +30,14 @@ public class UserCommandController {
     @ErrorLog
     @PostMapping("/create")
     @ResponseBody
-    public Mono<String> create(@Validated @RequestBody Mono<User> user) {
-        return user.flatMap(body -> userCommandService.create(body))
-                .map(result -> "success!")
-                .onErrorResume(e -> Mono.just("fail: " + e.getMessage()));
+    public Mono<SenderResult<Void>> create(@RequestBody User user) {
+          return userCommandService.create(user);
     }
 
     @ErrorLog
     @PutMapping("/update")
     @ResponseBody
-    public Mono<Void> update(@Validated @RequestBody User user) {
+    public Mono<Void> update(@RequestBody User user) {
         return userCommandService.update(user);
     }
 

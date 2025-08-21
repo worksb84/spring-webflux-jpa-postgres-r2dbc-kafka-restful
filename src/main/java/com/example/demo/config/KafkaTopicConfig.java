@@ -28,8 +28,8 @@ public class KafkaTopicConfig {
     public NewTopic userTopic() {
         Map<String, String> configs = new HashMap<>();
         configs.put("retention.ms", "604800000");
-        return TopicBuilder.name("user-topic")
-                .partitions(3)
+        return TopicBuilder.name("user-topic1")
+                .partitions(1)
                 .replicas(1)
                 .configs(configs)
                 .build();

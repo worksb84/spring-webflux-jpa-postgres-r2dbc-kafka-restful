@@ -28,7 +28,7 @@ public class UserCommandServiceImpl implements UserCommandService {
     @ErrorLog
     @Override
     public Mono<SenderResult<Void>> create(User user) {
-        return reactiveKafkaProducerTemplate.send("user-topic", user);
+        return reactiveKafkaProducerTemplate.send("user-topic1", user);
     }
 
     @Override
