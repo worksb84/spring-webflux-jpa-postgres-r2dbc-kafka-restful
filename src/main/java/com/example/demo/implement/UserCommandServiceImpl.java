@@ -19,8 +19,8 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     // private final Logger logger =
     // LogManager.getLogger(UserCommandServiceImpl.class);
-    // @Autowired
-    // private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private ReactiveKafkaProducerTemplate<String, Object> reactiveKafkaProducerTemplate;
@@ -33,18 +33,16 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     @Override
     public Mono<Void> update(User user) {
-        return Mono.just(null);
-        // return userRepository.findById(user.getId())
-        //         .flatMap(entity -> {
-        //             entity.setNickname(user.getNickname());
-        //             return userRepository.save(entity).then();
-        //         });
+        return userRepository.findById(user.getId())
+                .flatMap(entity -> {
+                    entity.setNickname(user.getNickname());
+                    return userRepository.save(entity).then();
+                });
     }
 
     @Override
     public Mono<Void> delete(Long id) {
-        return Mono.just(null);
-        // return userRepository.deleteById(id).then();
+        return userRepository.deleteById(id).then();
     }
 
 }

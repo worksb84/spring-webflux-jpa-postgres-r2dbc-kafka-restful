@@ -10,7 +10,6 @@ import com.example.demo.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.Disposable;
-import reactor.kafka.receiver.KafkaReceiver;
 
 @Service
 @Slf4j
@@ -21,8 +20,8 @@ public class KafkaReceiverService implements CommandLineRunner {
 
     @Autowired
     private ReactiveKafkaConsumerTemplate<String, Object> reactiveKafkaConsumerTemplate;
-    @Autowired
-    private KafkaReceiver<String, Object> kafkaReceiver;
+    // @Autowired
+    // private KafkaReceiver<String, Object> kafkaReceiver;
 
     private Disposable consume() {
 
@@ -44,7 +43,7 @@ public class KafkaReceiverService implements CommandLineRunner {
                 .receiveAutoAck()
                 .doOnNext(r -> {
                     User user = (User) r.value();
-                    log.info("user1: {} {} {}", user.getId(), user.getNickname(), user.getEmail());
+                    log.info("user1: {} {}", user.getNickname(), user.getEmail());
                     userRepository.save(user).subscribe(savedUser -> {
                         System.out.println("insert success! " + savedUser.getId());
                     }, error -> {
