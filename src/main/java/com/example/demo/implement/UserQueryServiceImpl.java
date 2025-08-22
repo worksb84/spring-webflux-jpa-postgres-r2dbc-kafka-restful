@@ -13,34 +13,31 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class UserQueryServiceImpl implements UserQueryService {
-    // @Autowired
-    // private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     @Transactional(readOnly = true)
     public Mono<User> get(Long id) {
-        
-        return Mono.just(null);
-        // Mono<User> user = userRepository.findById(id);
-        // user.subscribe(
-        //         data -> System.out.println(data),
-        //         error -> System.err.println(error),
-        //         () -> System.out.println("Completed"));
+        Mono<User> user = userRepository.findById(id);
+        user.subscribe(
+                data -> System.out.println(data),
+                error -> System.err.println(error),
+                () -> System.out.println("Completed"));
 
-        // return user;
+        return user;
     }
 
     @Override
     @Transactional(readOnly = true)
     public Flux<User> all() {
-        return Flux.just(null);
-        // Flux<User> users = userRepository.findAll();
-        // users.subscribe(
-        //         data -> System.out.println(data),
-        //         error -> System.err.println(error),
-        //         () -> System.out.println("Completed"));
+        Flux<User> users = userRepository.findAll();
+        users.subscribe(
+                data -> System.out.println(data),
+                error -> System.err.println(error),
+                () -> System.out.println("Completed"));
 
-        // return users;
+        return users;
     }
 
 }

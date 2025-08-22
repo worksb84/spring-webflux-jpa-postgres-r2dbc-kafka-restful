@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.kafka.core.reactive.ReactiveKafkaConsumerTemplate;
@@ -10,25 +9,22 @@ import com.example.demo.domain.User;
 import com.example.demo.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
+import reactor.core.Disposable;
 import reactor.kafka.receiver.KafkaReceiver;
 
 @Service
 @Slf4j
 public class KafkaReceiverService implements CommandLineRunner {
-    private final UserRepository userRepository;
 
     @Autowired
-    public KafkaReceiverService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private UserRepository userRepository;
 
     @Autowired
     private ReactiveKafkaConsumerTemplate<String, Object> reactiveKafkaConsumerTemplate;
     @Autowired
     private KafkaReceiver<String, Object> kafkaReceiver;
 
-    private Flux<ConsumerRecord<String, Object>> consume() {
+    private Disposable consume() {
 
         // DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("HH:mm:ss:SSS z dd
         // MMM yyyy");
@@ -48,16 +44,20 @@ public class KafkaReceiverService implements CommandLineRunner {
                 .receiveAutoAck()
                 .doOnNext(r -> {
                     User user = (User) r.value();
-                    log.info("user: {} {} {}", user.getId(), user.getNickname(), user.getEmail());
-                    userRepository.save(user);
+                    log.info("user1: {} {} {}", user.getId(), user.getNickname(), user.getEmail());
+                    userRepository.save(user).subscribe(savedUser -> {
+                        System.out.println("insert success! " + savedUser.getId());
+                    }, error -> {
+                        System.err.println("insert fail! " + error.getMessage());
+                    });
                 })
                 .doOnError(e -> {
                     System.out.println("error: " + e);
-                });
+                }).subscribe();
     }
 
     @Override
     public void run(String... args) throws Exception {
-        consume().subscribe();
+        consume();
     }
 }

@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,9 +21,9 @@ public class UserQueryController {
     @Autowired
     private UserQueryService userQueryService;
 
-    @GetMapping("/get")
+    @GetMapping("/get/{id}")
     @ResponseBody
-    public Mono<User> get(Long id) {
+    public Mono<User> get(@PathVariable Long id) {
         return userQueryService.get(id);
     }
 
