@@ -1,6 +1,9 @@
 package com.example.demo.implement;
 
+import java.util.Collections;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +41,19 @@ public class UserQueryServiceImpl implements UserQueryService {
                 () -> System.out.println("Completed"));
 
         return users;
+    }
+
+    @Override
+    public UserDetails auth(User user) {
+        User u = userRepository.findByEmailAndPassword(user.getEmail(), user.getPassword())
+                .switchIfEmpty(Mono.error(new RuntimeException("User not found or invalid credentials")))
+                .block();
+
+        return new org.springframework.security.core.userdetails.User(
+                u.getNickname(),
+                u.getPassword(),
+                Collections.emptyList());
+
     }
 
 }
