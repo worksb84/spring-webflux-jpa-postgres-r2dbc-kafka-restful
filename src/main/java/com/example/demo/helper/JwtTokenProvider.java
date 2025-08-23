@@ -2,10 +2,11 @@ package com.example.demo.helper;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +15,6 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class JwtTokenProvider {
@@ -43,31 +43,32 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
-                    .decryptWith(getSigningKey())
+                    .verifyWith(getSigningKey())
                     .build()
-                    .parseEncryptedClaims(token);
+                    .parseSignedClaims(token);
             return true;
         } catch (JwtException ex) {
             return false;
         }
     }
 
-    public String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
+    public String resolveToken(ServerHttpRequest request) {
+        HttpHeaders httpHeaders = request.getHeaders();
+        String bearerToken = httpHeaders.get("Authorization").get(0);
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
         return null;
     }
 
-    public String getUsernameFromToken(String token) {
-        Jws<Claims> claimsJws = Jwts.parser().decryptWith(getSigningKey()).
-                .setSigningKey(secretKey)
+    public String getNicknameFromToken(String token) {
+        Jws<Claims> claimsJws = Jwts.parser()
+                .verifyWith(getSigningKey())
                 .build()
-                .parseClaimsJws(token);
+                .parseSignedClaims(token);
 
-        String username = claimsJws.getBody().getSubject();
+        String nickname = claimsJws.getPayload().getSubject();
 
-        return username;
+        return nickname;
     }
 }

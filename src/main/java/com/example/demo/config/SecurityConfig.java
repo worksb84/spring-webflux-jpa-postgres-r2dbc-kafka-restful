@@ -43,10 +43,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated())
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService),
-                        UsernamePasswordAuthenticationFilter.class);
+                // .addFilterAt(new JwtAuthenticationWebFilter(),
+                // SecurityWebFilters.AUTHENTICATION);
+                .addFilterAt(new JwtAuthenticationFilter(),
+                        SecurityWebFilters.AUTHENTICATION);
 
         return http.build();
     }
